@@ -1,0 +1,39 @@
+{
+  "projects": [
+    {
+      "name": "Contributor Portal",
+      "owner": "Mona Patel",
+      "status": "Active",
+      "recentActivity": "Published the refreshed onboarding checklist and opened the first round of contributor feedback.",
+      "priority": "High"
+    },
+    {
+      "name": "Release Automation",
+      "owner": "Jordan Lee",
+      "status": "In Progress",
+      "recentActivity": "The staged release workflow passed its first production-like dry run; release notes are next.",
+      "priority": "High"
+    },
+    {
+      "name": "Design System Refresh",
+      "owner": "Avery Chen",
+      "status": "Planning",
+      "recentActivity": "Audited the most-used components and documented candidates for the next accessibility pass.",
+      "priority": "Medium"
+    },
+    {
+      "name": "Documentation Search",
+      "owner": "Sam Rivera",
+      "status": "At Risk",
+      "recentActivity": "Search indexing is ready for review, but the migration needs an additional infrastructure slot.",
+      "priority": "Critical"
+    },
+    {
+      "name": "Community Metrics",
+      "owner": "Priya Nair",
+      "status": "Complete",
+      "recentActivity": "Shared the first monthly engagement report with maintainers and archived the launch checklist.",
+      "priority": "Low"
+    }
+  ]
+}

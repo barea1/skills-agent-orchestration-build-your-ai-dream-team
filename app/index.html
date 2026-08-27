@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A contributor-friendly overview of current project status, activity, and priority.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="page-shell page-header">
+      <p class="eyebrow">Team operations</p>
+      <h1>Project Pulse</h1>
+      <p>A quick read on what the team is building, who is moving it forward, and where attention is needed next.</p>
+    </header>
+
+    <main>
+      <section aria-labelledby="projects-heading">
+        <div class="project-card__header">
+          <div>
+            <p class="eyebrow">Current portfolio</p>
+            <h2 id="projects-heading">Projects at a glance</h2>
+          </div>
+        </div>
+
+        <div id="project-list" class="dashboard" aria-live="polite" aria-busy="true">
+          <p class="loading" role="status">Loading project pulse…</p>
+        </div>
+      </section>
+    </main>
+
+    <template id="project-card-template">
+      <article class="project-card">
+        <header class="project-card__header">
+          <div>
+            <h3 class="project-name"></h3>
+            <p class="project-card__owner">Owner: <strong class="project-owner"></strong></p>
+          </div>
+          <div class="project-card__meta" aria-label="Project status and priority">
+            <span class="status project-status"></span>
+            <span class="priority project-priority"></span>
+          </div>
+        </header>
+        <dl class="project-card__activity">
+          <div>
+            <dt>Recent activity</dt>
+            <dd class="activity-text"></dd>
+          </div>
+        </dl>
+      </article>
+    </template>
+
+    <script>
+      const projectList = document.querySelector("#project-list");
+      const projectTemplate = document.querySelector("#project-card-template");
+      const requiredFields = ["name", "owner", "status", "recentActivity", "priority"];
+
+      function displayValue(value) {
+        return typeof value === "string" && value.trim() ? value.trim() : "Not provided";
+      }
+
+      function valueClass(value) {
+        return displayValue(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "unknown";
+      }
+
+      function showState(className, message, role) {
+        projectList.innerHTML = "";
+        const state = document.createElement("p");
+        state.className = className;
+        state.setAttribute("role", role);
+        state.textContent = message;
+        projectList.append(state);
+        projectList.setAttribute("aria-busy", "false");
+      }
+
+      function renderProjects(projects) {
+        if (!Array.isArray(projects)) {
+          throw new Error("Project data must contain a projects array.");
+        }
+
+        if (projects.length === 0) {
+          showState("empty-state", "No projects are currently available.", "status");
+          return;
+        }
+
+        projectList.innerHTML = "";
+        projects.forEach((project) => {
+          const card = projectTemplate.content.cloneNode(true);
+          const status = displayValue(project.status);
+          const priority = displayValue(project.priority);
+
+          card.querySelector(".project-name").textContent = displayValue(project.name);
+          card.querySelector(".project-owner").textContent = displayValue(project.owner);
+          card.querySelector(".activity-text").textContent = displayValue(project.recentActivity);
+
+          const statusElement = card.querySelector(".project-status");
+          statusElement.textContent = `Status: ${status}`;
+          statusElement.classList.add(`status-${valueClass(project.status)}`);
+          statusElement.dataset.status = valueClass(project.status);
+
+          const priorityElement = card.querySelector(".project-priority");
+          priorityElement.textContent = `Priority: ${priority}`;
+          priorityElement.classList.add(`priority-${valueClass(project.priority)}`);
+          priorityElement.dataset.priority = valueClass(project.priority);
+
+          projectList.append(card);
+        });
+        projectList.setAttribute("aria-busy", "false");
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json", { cache: "no-store" });
+          if (!response.ok) {
+            throw new Error(`Project data request failed with status ${response.status}.`);
+          }
+          const data = await response.json();
+          if (!data || requiredFields.some((field) => data.projects?.some((project) => !(field in project)))) {
+            throw new Error("Project data is missing one or more required fields.");
+          }
+          renderProjects(data.projects);
+        } catch (error) {
+          console.error("Unable to load Project Pulse data.", error);
+          showState("error-state", "Project updates are unavailable right now. Please try again later.", "alert");
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>
